@@ -61,10 +61,19 @@ sub _colorstr {
 	" $c->[0] $c->[1] $c->[2] setrgbcolor ";
 }
 
+sub _widthstr {
+	my($this, $width) = @_;
+	if(!defined $width) {
+		$width = $this->{Current_LineWidth};
+	}
+	" $width setlinewidth ";
+
+}
+
 sub _line {
 	my $this = shift;
 	my $name = shift;
-	my $s = $this->_colorstr."\n newpath ";
+	my $s = $this->_widthstr.$this->_colorstr."\n newpath ";
 	my $f;
 	while(@_) {
 		my ($x,$y) = (shift,shift);
@@ -88,7 +97,7 @@ sub _ellipse {
 		$xsca = $xr/$yr;
 		$r = $yr;
 	}
-	my $s = sprintf($this->_colorstr." gsave newpath
+	my $s = sprintf($this->_widthstr.$this->_colorstr." gsave newpath
 		%f %f translate %f %f scale %f 0 moveto 0 0 %f 0 360 arc 
 				",
 		($x2+$x1)/2, ($y2+$y1)/2, 
@@ -117,6 +126,11 @@ sub _wait {
 	print "Output written to '$fn'\n";
 }
 
+=head1 BUGS
+
+Writes much too much code, e.g. by setting width and color for each object.
+Should check if it is already set and leave the old setting and other
+such optimizations.
 
 =head1 AUTHOR
 

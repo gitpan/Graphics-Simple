@@ -8,7 +8,7 @@ set_elem(1,0,1,1);
 
 sub set_elem {
 	my($x, $y, $v, $sure) = @_;
-	return if not $sure and rand > 0.5;
+	return if not $sure and rand > 0.99;
 	return if $val{"$x,$y"} == $v;
 	push @chg, [$x, $y, $v-$val{"$x,$y"}];
 	$val{"$x,$y"} = $v;

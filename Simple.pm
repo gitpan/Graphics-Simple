@@ -37,6 +37,15 @@ device-independence is then lost.
 In future plans are some sort of interactions with the devices
 with which it is possible as well as the addition of more devices.
 
+The C<use> command currently accepts the forms
+
+	use Graphics::Simple;
+	use Graphics::Simple qw/line circle/;
+	use Graphics::Simple 300,400; # portrait paper
+	use Graphics::Simple 300,400, qw/line circle/;
+
+i.e. the optional size of the default window first and then
+normal C<Exporter> arguments.
 
 =cut
 
@@ -46,9 +55,22 @@ with which it is possible as well as the addition of more devices.
 
 package Graphics::Simple;
 
-$VERSION='0.02';
+require Exporter;
+@ISA='Exporter';
+
+@EXPORT = qw/line linewidth circle text clear stop new_window line_to color arrow/;
 
 @DefSize = (300,300);
+
+sub import {
+	if($_[1] =~ /^[0-9]+$/) {
+		@DefSize = splice @_,1,2;
+	}
+	goto &Exporter::import;
+}
+
+
+$VERSION='0.03';
 
 @impl = qw/
 	GSGtk.pm
@@ -70,6 +92,7 @@ sub new_window {
 	die("Couldn't get implementation! '$@'") if $@;
 	my($win) = "Graphics::Simple::$impl"->_construct($x,$y) ;
 	$win->{Current_Color} = '#000000';
+	$win->{Current_LineWidth} = 1;
 	return $win;
 }
 
@@ -104,6 +127,35 @@ Draws a line through the points given.
 sub line {
 	my ($win_to, $name) = &startargs;
 	$win_to->_line($name, @_);
+}
+
+=head2  arrow [$win_to], [$name], $x1, $y1, $x2, $y2, ...
+
+Like line, but makes an arrowhead in the end.
+
+=cut
+
+sub arrow {
+	my ($win, $name) = &startargs;
+	$win->line($name, @_);
+	$win->_arrow_head(@_[-4,-3,-2,-1]);
+}
+
+sub _arrow_head {
+	my($win, $x1,$y1,$x2,$y2) = @_;
+	my $l = sqrt(($x2-$x1)**2 + ($y2-$y1)**2);
+	return if abs($l) < 0.0000001;
+	my $vx = ($x2-$x1)/$l;
+	my $vy = ($y2-$y1)/$l;
+	# my $par = 5 * sqrt($win->{Current_LineWidth}); 
+	# my $perp = 4 * sqrt($win->{Current_LineWidth});
+	my $par = 10;
+	my $perp = 7;
+	$win->line($x2-$par*$vx-$perp*$vy,
+		   $y2-$par*$vy+$perp*$vx,
+		   $x2, $y2,
+		   $x2-$par*$vx+$perp*$vy,
+		   $y2-$par*$vy-$perp*$vx);
 }
 
 =head2  line_to [$win], [$name], $x1, $y1, $x2, $y2, ...
@@ -226,7 +278,7 @@ sub pop_window {
 }
 }
 
-=head2 color $color;
+=head2 color [$win,] $color;
 
 Set the current color to $color. Currently, the colors known are
 
@@ -271,17 +323,28 @@ sub color {
 	my ($win_to) = &startwin;
 	my $color = map_color(shift);
 	$win_to->{Current_Color} = $color;
+	$win_to->_color_changed();
 }
+
+sub _color_changed { }
+
+=head2 linewidth [$win,] $width
+
+=cut
+
+sub linewidth {
+	my($win_to) = &startwin;
+	$win_to->{Current_LineWidth} = shift;
+	$win_to->_linewidth_changed();
+}
+
+sub _linewidth_changed { }
 
 sub END {
 	if(my $win = $Graphics::Simple::Window) {
 		$win->_finish();
 	}
 }
-
-@ISA='Exporter';
-
-@EXPORT = qw/line circle text clear stop new_window line_to color/;
 
 1;
 

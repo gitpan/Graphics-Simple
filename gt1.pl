@@ -14,6 +14,8 @@ stop(); clear();
 
 color('green');
 circle(50,50,25);
+color('red');
+arrow(10,10,100,70);
 
 stop(); 
 

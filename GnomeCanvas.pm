@@ -65,6 +65,7 @@ sub _line {
 	my $l = $g->new($g, "Gnome::CanvasLine",
 		points => [@_],
 		fill_color => $this->{Current_Color},
+		width_units => $this->{Current_LineWidth},
 	);
 	$this->{I}{$name} = $l;
 }
@@ -76,6 +77,7 @@ sub _ellipse {
 		x1 => $x1, y1 => $y1,
 		x2 => $x2, y2 => $y2,
 		outline_color => $this->{Current_Color},
+		width_units => $this->{Current_LineWidth},
 	);
 	$this->{I}{$name} = $c;
 }
