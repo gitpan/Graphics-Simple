@@ -1,0 +1,8 @@
+GnomeCanvas.pm
+MANIFEST
+MANIFEST.SKIP
+Makefile.PL
+PostScript.pm
+Simple.pm
+gt1.pl
+gt2.pl
