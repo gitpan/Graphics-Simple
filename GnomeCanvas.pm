@@ -99,6 +99,47 @@ sub _remove {
 	(delete $this->{I}{$n})->destroy;
 }
 
+sub _image {
+	my($this, $n, $x, $y, $w, $h, $d, $str) = @_;
+	my $pixmap = Gtk::Gdk::Pixmap->new(
+		$this->{C}->window,
+		$w,
+		$h,
+		-1
+	);
+	my $gc = $this->{C}->style->fg_gc;
+	if($depth == 1) {
+		$pixmap->draw_gray_image(
+			$gc,
+			0,0,
+			$w, $h,
+			'NONE',
+			$w
+		);
+	} elsif($depth == 3) {
+		$pixmap->draw_rgb_image(
+			$gc,
+			0,0,
+			$w, $h,
+			'NONE',
+			$w*3
+		);
+	} else {
+		die("Depth must be 3");
+	}
+	my $wid = Gtk::Pixmap->new(
+		$pm, undef
+	);
+	my $g = $this->{C}->root;
+	my $c = $g->new($g, "Gnome::CanvasWidget",
+		widget => $wid,
+		x => $x,
+		y => $y,
+		# XXX width + height
+	);
+	$this->{I}{$name} = $c;
+}
+
 sub _clear {
 	my($this) = @_;
 	for(values %{$this->{I}}) {

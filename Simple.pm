@@ -47,6 +47,27 @@ The C<use> command currently accepts the forms
 i.e. the optional size of the default window first and then
 normal C<Exporter> arguments.
 
+C<Graphics::Simple> has several different back-ends, currently 
+GnomeCanvas, TkCanvas, PostScript and (not fully working yet) Fig.
+Other backends are expected.
+
+To start C<Graphics::Simple> with a given backend, you should set
+the environment variable C<GSIMPL> to the value, e.g. by running
+your script with the command
+
+	GSIMPL='PostScript' perl gt1.pl
+
+or by setting the environment variable permanently in your shell, by
+
+	GSIMPL=PostScript
+	export GSIMPL
+
+or 
+
+	setenv GSIMPL PostScript
+
+depending on which shell you use.
+
 =cut
 
 # Handle output files as well
@@ -70,7 +91,7 @@ sub import {
 }
 
 
-$VERSION='0.03';
+$VERSION='0.04';
 
 @impl = qw/
 	GSGtk.pm
@@ -212,6 +233,21 @@ Duh...
 sub text {
 	my ($win_to, $name) = &startargs;
 	$win_to->_text($name, @_);
+}
+
+=head2 image [$win], [$name], $x, $y, $width, $height, $depth, $string
+
+This command creates a rectangular bit- or pixmap. The $depth parameter
+is the number of bytes per pixel (1 for B/W or 3 for RGB) and the string
+is a string of packed bytes that describe the image.
+
+For instance, the module PDL is a good source for such strings.
+
+=cut
+
+sub image {
+	my($win_to, $name) = &startargs;
+	$win_to->_image($name, @_);
 }
 
 =head2 clear, stop
